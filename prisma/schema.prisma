@@ -1,0 +1,62 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider  = "postgresql"
+  url       = env("DATABASE_URL")
+  directUrl = env("DIRECT_URL")
+}
+
+model Resident {
+  id              String   @id @default(cuid())
+  nik             String   @unique
+  fullName        String
+  whatsapp        String
+  roomType        String
+  checkInDate     DateTime
+  ktpUrl          String?
+  status          String   @default("Active") // Active, Pending, Inactive
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+  
+  transactions    Transaction[]
+  reviews         Review[]
+
+  @@index([nik])
+  @@index([fullName])
+}
+
+model Room {
+  id          String   @id @default(cuid())
+  name        String   @unique // e.g., Kamar 101
+  type        String // Deluxe, Standard
+  price       Float
+  available   Boolean  @default(true)
+  specifications String[]
+  images      String[]
+  createdAt   DateTime @default(now())
+}
+
+model Transaction {
+  id          String   @id @default(cuid())
+  residentId  String?
+  type        String // Income, Expense
+  category    String // Rent, Electricity, Water, Maintenance
+  amount      Float
+  date        DateTime @default(now())
+  description String?
+  
+  resident    Resident? @relation(fields: [residentId], references: [id])
+}
+
+model Review {
+  id          String   @id @default(cuid())
+  residentId  String
+  rating      Int
+  comment     String
+  isApproved  Boolean  @default(false)
+  createdAt   DateTime @default(now())
+  
+  resident    Resident @relation(fields: [residentId], references: [id])
+}
