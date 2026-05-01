@@ -4,7 +4,6 @@ import React, { useState, useEffect } from "react";
 import {
     ArrowUpCircle,
     ArrowDownCircle,
-    Filter,
     Download,
     Plus,
     Search,
@@ -13,19 +12,19 @@ import {
 import { Button } from "@/components/ui/button";
 import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card";
 import { cn } from "@/lib/utils";
-import { getTransactions } from "../actions";
 import { AddTransactionDialog } from "@/components/admin/AddTransactionDialog";
 
 const FinancialPage = () => {
-    const [filterPeriod, setFilterPeriod] = useState("Bulanan");
     const [transactions, setTransactions] = useState<any[]>([]);
     const [loading, setLoading] = useState(true);
     const [isAddOpen, setIsAddOpen] = useState(false);
+    const [searchTerm, setSearchTerm] = useState("");
 
     const loadData = async () => {
         setLoading(true);
         try {
-            const data = await getTransactions();
+            const res = await fetch("/api/admin/transactions");
+            const data = await res.json();
             setTransactions(data);
         } catch (error) {
             console.error(error);
@@ -43,6 +42,12 @@ const FinancialPage = () => {
     const totalIncome = transactions.filter(t => t.type === "Masuk").reduce((acc, t) => acc + t.amount, 0);
     const totalExpense = transactions.filter(t => t.type === "Keluar").reduce((acc, t) => acc + t.amount, 0);
     const labaBersih = totalIncome - totalExpense;
+
+    const filteredTransactions = transactions.filter(tx =>
+        (tx.description || "").toLowerCase().includes(searchTerm.toLowerCase()) ||
+        tx.category.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        (tx.resident?.fullName || "").toLowerCase().includes(searchTerm.toLowerCase())
+    );
 
     return (
         <div className="space-y-8">
@@ -91,17 +96,9 @@ const FinancialPage = () => {
             {/* Filters */}
             <div className="bg-white dark:bg-emerald-950 border border-slate-200 dark:border-emerald-900 rounded-[2rem] p-4 flex flex-col md:flex-row items-center gap-4">
                 <div className="flex gap-2 p-1 bg-slate-100 dark:bg-emerald-900/10 rounded-xl w-full md:w-auto">
-                    {["Semua"].map((period) => (
-                        <button
-                            key={period}
-                            className={cn(
-                                "px-4 py-2 rounded-lg text-xs font-bold transition-all",
-                                "bg-white dark:bg-emerald-800 text-emerald-600 shadow-sm"
-                            )}
-                        >
-                            {period}
-                        </button>
-                    ))}
+                    <button className="px-4 py-2 rounded-lg text-xs font-bold transition-all bg-white dark:bg-emerald-800 text-emerald-600 shadow-sm">
+                        Semua
+                    </button>
                 </div>
                 <div className="relative flex-grow w-full md:w-auto">
                     <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
@@ -109,52 +106,56 @@ const FinancialPage = () => {
                         type="text"
                         placeholder="Cari transaksi..."
                         className="w-full h-10 pl-11 pr-4 bg-slate-50 dark:bg-emerald-900/10 rounded-xl focus:outline-none focus:ring-2 focus:ring-emerald-500 text-sm"
+                        value={searchTerm}
+                        onChange={(e) => setSearchTerm(e.target.value)}
                     />
                 </div>
             </div>
 
             {/* Transaction Table */}
             <div className="bg-white dark:bg-emerald-950 border border-slate-200 dark:border-emerald-900 rounded-[2rem] overflow-hidden">
-                <table className="w-full text-left">
-                    <thead>
-                        <tr className="bg-slate-50 dark:bg-emerald-900/20 text-slate-400 text-xs font-bold uppercase tracking-widest border-b border-slate-100">
-                            <th className="px-8 py-5">Tanggal / Deskripsi</th>
-                            <th className="px-6 py-5">Penghuni / Kategori</th>
-                            <th className="px-6 py-5">Jenis</th>
-                            <th className="px-8 py-5 text-right">Nominal</th>
-                        </tr>
-                    </thead>
-                    <tbody className="divide-y divide-slate-50 dark:divide-emerald-900/10">
-                        {loading ? (
-                            <tr><td colSpan={4} className="text-center py-8"><Loader2 className="w-6 h-6 animate-spin mx-auto text-emerald-500" /></td></tr>
-                        ) : transactions.length === 0 ? (
-                            <tr><td colSpan={4} className="text-center py-8 text-slate-400">Belum ada transaksi.</td></tr>
-                        ) : transactions.map((tx) => (
-                            <tr key={tx.id} className="hover:bg-slate-50/50 transition-colors">
-                                <td className="px-8 py-5">
-                                    <div className="font-bold text-slate-800">{new Date(tx.date).toLocaleDateString("id-ID")}</div>
-                                    <div className="text-xs text-slate-400 font-medium">{tx.description || "-"}</div>
-                                </td>
-                                <td className="px-6 py-5">
-                                    {tx.resident && <div className="text-sm font-bold text-slate-800 mb-1">{tx.resident.fullName}</div>}
-                                    <div className="text-xs font-semibold text-slate-500 px-2 py-1 bg-slate-100 rounded inline-block">
-                                        {tx.category}
-                                    </div>
-                                </td>
-                                <td className="px-6 py-5">
-                                    <div className={cn(
-                                        "flex items-center gap-2 text-sm font-bold",
-                                        tx.type === "Masuk" ? "text-emerald-600" : "text-red-500"
-                                    )}>
-                                        {tx.type === "Masuk" ? <ArrowUpCircle className="w-4 h-4" /> : <ArrowDownCircle className="w-4 h-4" />}
-                                        {tx.type}
-                                    </div>
-                                </td>
-                                <td className="px-8 py-5 text-right font-bold text-slate-900">{formatCurrency(tx.amount)}</td>
+                <div className="overflow-x-auto">
+                    <table className="w-full text-left">
+                        <thead>
+                            <tr className="bg-slate-50 dark:bg-emerald-900/20 text-slate-400 text-xs font-bold uppercase tracking-widest border-b border-slate-100">
+                                <th className="px-8 py-5">Tanggal / Deskripsi</th>
+                                <th className="px-6 py-5">Penghuni / Kategori</th>
+                                <th className="px-6 py-5">Jenis</th>
+                                <th className="px-8 py-5 text-right">Nominal</th>
                             </tr>
-                        ))}
-                    </tbody>
-                </table>
+                        </thead>
+                        <tbody className="divide-y divide-slate-50 dark:divide-emerald-900/10">
+                            {loading ? (
+                                <tr><td colSpan={4} className="text-center py-8"><Loader2 className="w-6 h-6 animate-spin mx-auto text-emerald-500" /></td></tr>
+                            ) : filteredTransactions.length === 0 ? (
+                                <tr><td colSpan={4} className="text-center py-8 text-slate-400">Belum ada transaksi.</td></tr>
+                            ) : filteredTransactions.map((tx) => (
+                                <tr key={tx.id} className="hover:bg-slate-50/50 transition-colors">
+                                    <td className="px-8 py-5">
+                                        <div className="font-bold text-slate-800">{new Date(tx.date).toLocaleDateString("id-ID")}</div>
+                                        <div className="text-xs text-slate-400 font-medium">{tx.description || "-"}</div>
+                                    </td>
+                                    <td className="px-6 py-5">
+                                        {tx.resident && <div className="text-sm font-bold text-slate-800 mb-1">{tx.resident.fullName}</div>}
+                                        <div className="text-xs font-semibold text-slate-500 px-2 py-1 bg-slate-100 rounded inline-block">
+                                            {tx.category}
+                                        </div>
+                                    </td>
+                                    <td className="px-6 py-5">
+                                        <div className={cn(
+                                            "flex items-center gap-2 text-sm font-bold",
+                                            tx.type === "Masuk" ? "text-emerald-600" : "text-red-500"
+                                        )}>
+                                            {tx.type === "Masuk" ? <ArrowUpCircle className="w-4 h-4" /> : <ArrowDownCircle className="w-4 h-4" />}
+                                            {tx.type}
+                                        </div>
+                                    </td>
+                                    <td className="px-8 py-5 text-right font-bold text-slate-900">{formatCurrency(tx.amount)}</td>
+                                </tr>
+                            ))}
+                        </tbody>
+                    </table>
+                </div>
             </div>
 
             <AddTransactionDialog

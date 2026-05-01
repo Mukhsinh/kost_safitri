@@ -1,7 +1,6 @@
 import React, { useState } from "react";
 import { X, Save, Loader2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { addResident } from "@/app/admin/actions";
 
 interface AddResidentDialogProps {
     isOpen: boolean;
@@ -25,11 +24,20 @@ export function AddResidentDialog({ isOpen, onClose, onSuccess }: AddResidentDia
         e.preventDefault();
         setLoading(true);
         try {
-            await addResident(formData);
+            const res = await fetch("/api/admin/residents", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify(formData),
+            });
+            if (!res.ok) {
+                const err = await res.json();
+                throw new Error(err.error || "Gagal menyimpan");
+            }
+            setFormData({ nik: "", fullName: "", whatsapp: "", roomType: "Standard", checkInDate: new Date().toISOString().split("T")[0] });
             onSuccess();
-        } catch (error) {
+        } catch (error: any) {
             console.error(error);
-            alert("Gagal menambahkan penghuni. Periksa apakah NIK sudah digunakan.");
+            alert(`Gagal menambahkan penghuni: ${error.message}`);
         } finally {
             setLoading(false);
         }
@@ -51,7 +59,7 @@ export function AddResidentDialog({ isOpen, onClose, onSuccess }: AddResidentDia
                     </div>
                     <div className="space-y-2">
                         <label className="text-sm font-bold text-slate-700 dark:text-emerald-100">NIK</label>
-                        <input required type="number" value={formData.nik} onChange={e => setFormData({ ...formData, nik: e.target.value })} className="w-full h-11 px-4 bg-slate-50 dark:bg-emerald-900/20 rounded-xl border border-slate-200 dark:border-emerald-800 focus:ring-2 focus:ring-emerald-500 outline-none" />
+                        <input required type="text" value={formData.nik} onChange={e => setFormData({ ...formData, nik: e.target.value })} className="w-full h-11 px-4 bg-slate-50 dark:bg-emerald-900/20 rounded-xl border border-slate-200 dark:border-emerald-800 focus:ring-2 focus:ring-emerald-500 outline-none" />
                     </div>
                     <div className="space-y-2">
                         <label className="text-sm font-bold text-slate-700 dark:text-emerald-100">Nomor WhatsApp</label>

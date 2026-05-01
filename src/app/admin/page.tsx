@@ -3,15 +3,54 @@ import { cn } from "@/lib/utils";
 import {
     Users,
     TrendingUp,
-    ArrowUpRight,
-    ArrowDownRight,
     Wallet
 } from "lucide-react";
 import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card";
-import { getDashboardStats } from "./actions";
+import { createClient } from "@supabase/supabase-js";
+
+const supabase = createClient(
+    process.env.NEXT_PUBLIC_SUPABASE_URL!,
+    process.env.SUPABASE_SERVICE_ROLE_KEY || process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
+);
+
+async function getDashboardStats() {
+    const { count: totalResidents } = await supabase
+        .from("Resident")
+        .select("*", { count: "exact", head: true })
+        .eq("status", "Active");
+
+    const now = new Date();
+    const firstDay = new Date(now.getFullYear(), now.getMonth(), 1).toISOString();
+
+    const { data: transactions } = await supabase
+        .from("Transaction")
+        .select("type, amount")
+        .gte("date", firstDay);
+
+    const income = (transactions || []).filter(t => t.type === "Masuk").reduce((acc, t) => acc + t.amount, 0);
+    const expense = (transactions || []).filter(t => t.type === "Keluar").reduce((acc, t) => acc + t.amount, 0);
+
+    const { data: recentResidents } = await supabase
+        .from("Resident")
+        .select("*")
+        .order("createdAt", { ascending: false })
+        .limit(3);
+
+    return {
+        totalResidents: totalResidents || 0,
+        income,
+        expense,
+        recentResidents: recentResidents || [],
+    };
+}
 
 const AdminDashboard = async () => {
-    const data = await getDashboardStats();
+    let data = { totalResidents: 0, income: 0, expense: 0, recentResidents: [] as any[] };
+    try {
+        data = await getDashboardStats();
+    } catch (e) {
+        console.error("Failed to load dashboard stats:", e);
+    }
 
     const formatCurrency = (val: number) => new Intl.NumberFormat("id-ID", { style: "currency", currency: "IDR" }).format(val);
 
@@ -76,7 +115,6 @@ const AdminDashboard = async () => {
                 <div className="bg-white dark:bg-emerald-950 border border-slate-200 dark:border-emerald-900 rounded-3xl p-8">
                     <div className="flex justify-between items-center mb-8">
                         <h2 className="text-xl font-bold">Penghuni Terbaru</h2>
-                        <button className="text-sm font-bold text-emerald-600 hover:underline">Lihat Semua</button>
                     </div>
                     <div className="space-y-6">
                         {data.recentResidents.map((res: any, idx: number) => (
@@ -101,7 +139,7 @@ const AdminDashboard = async () => {
                     </div>
                 </div>
 
-                {/* Keuangan Sederhana Card */}
+                {/* Laba Bersih Card */}
                 <div className="bg-emerald-600 text-white rounded-3xl p-8 relative overflow-hidden shadow-xl shadow-emerald-500/20">
                     <div className="relative z-10">
                         <h2 className="text-xl font-bold mb-2">Laba Bersih Bulan Ini</h2>

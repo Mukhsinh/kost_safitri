@@ -7,9 +7,8 @@ import {
     XCircle,
     Loader2
 } from "lucide-react";
-import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card";
+import { Card, CardContent } from "@/components/ui/card";
 import { cn } from "@/lib/utils";
-import { getReviews, updateReviewStatus } from "../actions";
 
 const ReviewsManagementPage = () => {
     const [reviews, setReviews] = useState<any[]>([]);
@@ -18,7 +17,8 @@ const ReviewsManagementPage = () => {
     const loadData = async () => {
         setLoading(true);
         try {
-            const data = await getReviews();
+            const res = await fetch("/api/admin/reviews");
+            const data = await res.json();
             setReviews(data);
         } catch (error) {
             console.error(error);
@@ -32,7 +32,11 @@ const ReviewsManagementPage = () => {
     }, []);
 
     const toggleStatus = async (id: string, isApproved: boolean) => {
-        await updateReviewStatus(id, isApproved);
+        await fetch(`/api/admin/reviews/${id}`, {
+            method: "PATCH",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ isApproved }),
+        });
         loadData();
     };
 
@@ -115,24 +119,26 @@ const ReviewsManagementPage = () => {
                                             {res.isApproved ? "Ditampilkan" : "Menunggu"}
                                         </div>
                                     </td>
-                                    <td className="px-8 py-5 text-right flex justify-end gap-2">
-                                        {!res.isApproved ? (
-                                            <button
-                                                onClick={() => toggleStatus(res.id, true)}
-                                                className="p-2 bg-emerald-50 text-emerald-600 rounded-xl hover:bg-emerald-600 hover:text-white transition-all shadow-sm"
-                                                title="Setujui"
-                                            >
-                                                <CheckCircle className="w-5 h-5" />
-                                            </button>
-                                        ) : (
-                                            <button
-                                                onClick={() => toggleStatus(res.id, false)}
-                                                className="p-2 bg-amber-50 text-amber-500 rounded-xl hover:bg-amber-500 hover:text-white transition-all shadow-sm"
-                                                title="Sembunyikan"
-                                            >
-                                                <XCircle className="w-5 h-5" />
-                                            </button>
-                                        )}
+                                    <td className="px-8 py-5 text-right">
+                                        <div className="flex justify-end gap-2">
+                                            {!res.isApproved ? (
+                                                <button
+                                                    onClick={() => toggleStatus(res.id, true)}
+                                                    className="p-2 bg-emerald-50 text-emerald-600 rounded-xl hover:bg-emerald-600 hover:text-white transition-all shadow-sm"
+                                                    title="Setujui"
+                                                >
+                                                    <CheckCircle className="w-5 h-5" />
+                                                </button>
+                                            ) : (
+                                                <button
+                                                    onClick={() => toggleStatus(res.id, false)}
+                                                    className="p-2 bg-amber-50 text-amber-500 rounded-xl hover:bg-amber-500 hover:text-white transition-all shadow-sm"
+                                                    title="Sembunyikan"
+                                                >
+                                                    <XCircle className="w-5 h-5" />
+                                                </button>
+                                            )}
+                                        </div>
                                     </td>
                                 </tr>
                             ))}

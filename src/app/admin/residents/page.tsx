@@ -12,7 +12,6 @@ import {
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
-import { getResidents, updateResidentStatus } from "../actions";
 import { AddResidentDialog } from "@/components/admin/AddResidentDialog";
 
 const ResidentsPage = () => {
@@ -25,7 +24,8 @@ const ResidentsPage = () => {
     const loadData = async () => {
         setLoading(true);
         try {
-            const data = await getResidents();
+            const res = await fetch("/api/admin/residents");
+            const data = await res.json();
             setResidents(data);
         } catch (error) {
             console.error(error);
@@ -41,7 +41,11 @@ const ResidentsPage = () => {
     const handleStatusChange = async (id: string, currentStatus: string) => {
         const nextStatus = currentStatus === "Active" ? "Inactive" : "Active";
         if (confirm(`Ubah status penghuni menjadi ${nextStatus}?`)) {
-            await updateResidentStatus(id, nextStatus);
+            await fetch(`/api/admin/residents/${id}`, {
+                method: "PATCH",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({ status: nextStatus }),
+            });
             loadData();
         }
     };

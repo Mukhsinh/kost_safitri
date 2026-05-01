@@ -1,7 +1,6 @@
 import React, { useState, useEffect } from "react";
 import { X, Save, Loader2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { addTransaction, getResidents } from "@/app/admin/actions";
 
 interface AddTransactionDialogProps {
     isOpen: boolean;
@@ -23,7 +22,10 @@ export function AddTransactionDialog({ isOpen, onClose, onSuccess }: AddTransact
 
     useEffect(() => {
         if (isOpen) {
-            getResidents().then(setResidents);
+            fetch("/api/admin/residents")
+                .then(res => res.json())
+                .then(setResidents)
+                .catch(console.error);
         }
     }, [isOpen]);
 
@@ -33,18 +35,27 @@ export function AddTransactionDialog({ isOpen, onClose, onSuccess }: AddTransact
         e.preventDefault();
         setLoading(true);
         try {
-            await addTransaction({
-                type: formData.type,
-                category: formData.category,
-                amount: parseFloat(formData.amount),
-                description: formData.description,
-                date: formData.date,
-                residentId: formData.residentId || undefined,
+            const res = await fetch("/api/admin/transactions", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({
+                    type: formData.type,
+                    category: formData.category,
+                    amount: parseFloat(formData.amount),
+                    description: formData.description,
+                    date: formData.date,
+                    residentId: formData.residentId || undefined,
+                }),
             });
+            if (!res.ok) {
+                const err = await res.json();
+                throw new Error(err.error || "Gagal menyimpan");
+            }
+            setFormData({ type: "Masuk", category: "Sewa Kamar", amount: "", description: "", date: new Date().toISOString().split("T")[0], residentId: "" });
             onSuccess();
-        } catch (error) {
+        } catch (error: any) {
             console.error(error);
-            alert("Gagal mencatat transaksi.");
+            alert(`Gagal mencatat transaksi: ${error.message}`);
         } finally {
             setLoading(false);
         }
@@ -100,7 +111,7 @@ export function AddTransactionDialog({ isOpen, onClose, onSuccess }: AddTransact
                         <select value={formData.residentId} onChange={e => setFormData({ ...formData, residentId: e.target.value })} className="w-full h-11 px-4 bg-slate-50 dark:bg-emerald-900/20 rounded-xl border border-slate-200 dark:border-emerald-800 focus:ring-2 focus:ring-emerald-500 outline-none text-slate-800">
                             <option value="">- Tidak ada / Umum -</option>
                             {residents.map((r: any) => (
-                                <option key={r.id} value={r.id}>{r.fullName} (Ktp: {r.nik})</option>
+                                <option key={r.id} value={r.id}>{r.fullName} (NIK: {r.nik})</option>
                             ))}
                         </select>
                     </div>
