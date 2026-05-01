@@ -1,7 +1,16 @@
 {
     "mcpServers": {
         "supabase": {
-            "url": "https://mcp.supabase.com/mcp?project_ref=mjznvuqvyylxhglohpws&features=database%2Cdocs%2Caccount%2Cdebugging%2Cdevelopment%2Cfunctions%2Cbranching%2Cstorage"
+            "command": "npx",
+            "args": [
+                "-y",
+                "@supabase/mcp-server-supabase",
+                "--project-ref",
+                "mjznvuqvyylxhglohpws"
+            ],
+            "env": {
+                "SUPABASE_SERVICE_ROLE_KEY": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im1qem52dXF2eXlseGhnbG9ocHdzIiwicm9sZSI6InNlcnZpY2Vfcm9sZSIsImlhdCI6MTc3NzYxOTkyMCwiZXhwIjoyMDkzMTk1OTIwfQ.PznG-4WiyJbIBJOcpmkLhJ2rXyLoPRC2MMQtjEdGmKE"
+            }
         }
     }
 }

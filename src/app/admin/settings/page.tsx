@@ -1,18 +1,57 @@
 "use client";
 
-import React from "react";
+import React, { useState } from "react";
 import {
     Shield,
     Key,
     Bell,
     Globe,
     Database,
-    Save
+    Save,
+    Loader2
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card";
+import { updateAdminProfile, updateAdminPassword } from "@/app/admin/actions";
 
 const SettingsPage = () => {
+    const [name, setName] = useState("Sarah Safitri");
+    const [email, setEmail] = useState("sarahsafitri33@gmail.com");
+    const [oldPassword, setOldPassword] = useState("");
+    const [newPassword, setNewPassword] = useState("");
+    const [loadingProfile, setLoadingProfile] = useState(false);
+    const [loadingPassword, setLoadingPassword] = useState(false);
+
+    const handleUpdateProfile = async () => {
+        setLoadingProfile(true);
+        try {
+            await updateAdminProfile(name, email);
+            alert("Profil berhasil diperbarui!");
+        } catch (error: any) {
+            alert(`Gagal: ${error.message}`);
+        } finally {
+            setLoadingProfile(false);
+        }
+    };
+
+    const handleUpdatePassword = async () => {
+        if (!oldPassword || !newPassword) {
+            alert("Harap isi semua kolom password.");
+            return;
+        }
+        setLoadingPassword(true);
+        try {
+            await updateAdminPassword(oldPassword, newPassword);
+            alert("Password berhasil diperbarui!");
+            setOldPassword("");
+            setNewPassword("");
+        } catch (error: any) {
+            alert(`Gagal: ${error.message}`);
+        } finally {
+            setLoadingPassword(false);
+        }
+    };
+
     return (
         <div className="space-y-8 max-w-4xl">
             <div>
@@ -32,15 +71,26 @@ const SettingsPage = () => {
                         <div className="grid grid-cols-2 gap-4">
                             <div className="space-y-2">
                                 <label className="text-sm font-bold text-slate-700">Nama Lengkap</label>
-                                <input type="text" defaultValue="Admin Safitri" className="w-full h-11 px-4 bg-slate-50 rounded-xl border border-slate-200 focus:ring-2 focus:ring-emerald-500 outline-none" />
+                                <input
+                                    type="text"
+                                    value={name}
+                                    onChange={(e) => setName(e.target.value)}
+                                    className="w-full h-11 px-4 bg-slate-50 rounded-xl border border-slate-200 focus:ring-2 focus:ring-emerald-500 outline-none"
+                                />
                             </div>
                             <div className="space-y-2">
                                 <label className="text-sm font-bold text-slate-700">Email Utama</label>
-                                <input type="email" defaultValue="admin@kostsafitri.com" className="w-full h-11 px-4 bg-slate-50 rounded-xl border border-slate-200 focus:ring-2 focus:ring-emerald-500 outline-none" />
+                                <input
+                                    type="email"
+                                    value={email}
+                                    onChange={(e) => setEmail(e.target.value)}
+                                    className="w-full h-11 px-4 bg-slate-50 rounded-xl border border-slate-200 focus:ring-2 focus:ring-emerald-500 outline-none"
+                                />
                             </div>
                         </div>
-                        <Button size="sm" className="gap-2">
-                            <Save className="w-4 h-4" /> Simpan Perubahan
+                        <Button size="sm" className="gap-2" onClick={handleUpdateProfile} disabled={loadingProfile}>
+                            {loadingProfile ? <Loader2 className="w-4 h-4 animate-spin" /> : <Save className="w-4 h-4" />}
+                            Simpan Perubahan
                         </Button>
                     </CardContent>
                 </Card>
@@ -55,9 +105,23 @@ const SettingsPage = () => {
                     <CardContent className="space-y-4">
                         <p className="text-sm text-slate-500 mb-4">Ganti kata sandi Anda secara berkala untuk menjaga keamanan data penghuni.</p>
                         <div className="grid grid-cols-1 gap-4 max-w-sm">
-                            <input type="password" placeholder="Password Lama" className="w-full h-11 px-4 bg-slate-50 rounded-xl border border-slate-200" />
-                            <input type="password" placeholder="Password Baru" className="w-full h-11 px-4 bg-slate-50 rounded-xl border border-slate-200" />
-                            <Button variant="outline" className="w-fit">Update Password</Button>
+                            <input
+                                type="password"
+                                placeholder="Password Lama"
+                                value={oldPassword}
+                                onChange={(e) => setOldPassword(e.target.value)}
+                                className="w-full h-11 px-4 bg-slate-50 rounded-xl border border-slate-200 outline-none focus:ring-2 focus:ring-emerald-500"
+                            />
+                            <input
+                                type="password"
+                                placeholder="Password Baru"
+                                value={newPassword}
+                                onChange={(e) => setNewPassword(e.target.value)}
+                                className="w-full h-11 px-4 bg-slate-50 rounded-xl border border-slate-200 outline-none focus:ring-2 focus:ring-emerald-500"
+                            />
+                            <Button variant="outline" className="w-fit" onClick={handleUpdatePassword} disabled={loadingPassword}>
+                                {loadingPassword ? <Loader2 className="w-4 h-4 animate-spin" /> : "Update Password"}
+                            </Button>
                         </div>
                     </CardContent>
                 </Card>

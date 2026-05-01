@@ -4,30 +4,39 @@ import { Star, Quote } from "lucide-react";
 const reviews = [
     {
         id: 1,
-        name: "Dewi Rahayu",
-        role: "Mahasiswi",
+        name: "Dewi",
+        role: "Karyawan Bank",
         rating: 5,
         comment: "Kostnya bersih dan nyaman banget! AC-nya dingin, WiFi kenceng, dan lingkungannya di perumahan jadi terasa aman dan tenang. Sangat puas tinggal di sini.",
-        initials: "DR",
+        initials: "D",
         color: "bg-emerald-500",
     },
     {
         id: 2,
-        name: "Siti Nurhaliza",
-        role: "Karyawati Swasta",
+        name: "Dian",
+        role: "Karyawan Hotel",
         rating: 5,
         comment: "Lokasinya di Saphire Townhouse strategis dan eksklusif. Pemilik kost juga sangat baik dan responsif via WhatsApp. Kamar mandinya bersih dengan shower yang oke.",
-        initials: "SN",
+        initials: "D",
         color: "bg-blue-500",
     },
     {
         id: 3,
-        name: "Rina Agustin",
-        role: "Guru SD",
+        name: "dr. Faras",
+        role: "Dokter",
         rating: 5,
         comment: "Lingkungan perumahannya bikin betah, asri dan tidak berisik. Cocok sekali untuk yang kerja atau butuh suasana belajar yang kondusif. Recommended!",
-        initials: "RA",
+        initials: "DF",
         color: "bg-violet-500",
+    },
+    {
+        id: 4,
+        name: "Ica",
+        role: "Karyawan Swasta",
+        rating: 5,
+        comment: "Hunian yang sangat premium dan terawat. Keamanan 24 jam di perumahan memberikan rasa tenang. Sangat merekomendasikan Kost Safitri bagi yang mencari kenyamanan.",
+        initials: "I",
+        color: "bg-orange-500",
     },
 ];
 
@@ -47,7 +56,7 @@ const Reviews = () => {
                     </p>
                 </div>
 
-                <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
                     {reviews.map((review) => (
                         <div
                             key={review.id}

@@ -2,8 +2,8 @@ import React from "react";
 import { MessageCircle } from "lucide-react";
 
 const FloatingWA = () => {
-    const waNumber = "085726112001";
-    const message = "Halo Admin Kost SAFITRI, saya tertarik untuk bertanya mengenai ketersediaan kamar. Mohon informasinya, terima kasih.";
+    const waNumber = "6285848370037";
+    const message = "Selamat datang di Kost Safitri, mohon informasi lebih lanjut tentang Kost Safitri";
     const encodedMessage = encodeURIComponent(message);
     const waUrl = `https://wa.me/${waNumber}?text=${encodedMessage}`;
 

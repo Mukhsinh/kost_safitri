@@ -8,6 +8,7 @@ import { Button } from "@/components/ui/button";
 import { Upload, FileText, CheckCircle2, AlertCircle } from "lucide-react";
 import { jsPDF } from "jspdf";
 import { cn } from "@/lib/utils";
+import { registerBooking } from "@/app/admin/actions";
 
 const formSchema = z.object({
     fullName: z.string().min(3, "Nama lengkap minimal 3 karakter"),
@@ -78,8 +79,8 @@ const RegistrationForm = () => {
         // Pembayaran
         doc.setFontSize(12);
         doc.text("INFORMASI PEMBAYARAN:", 20, 195);
-        doc.text("Bank BCA: 123-456-7890", 20, 205);
-        doc.text("Atas Nama: SAFITRI", 20, 212);
+        doc.text("Bank BCA: 2381120947", 20, 205);
+        doc.text("Atas Nama: Sarah Safitri", 20, 212);
 
         doc.setFontSize(10);
         doc.setTextColor(150);
@@ -90,12 +91,22 @@ const RegistrationForm = () => {
 
     const onSubmit = async (data: FormValues) => {
         setIsSubmitting(true);
-        // Simulating API call
-        setTimeout(() => {
+        try {
+            await registerBooking({
+                nik: data.nik,
+                fullName: data.fullName,
+                whatsapp: data.whatsapp,
+                roomType: data.roomType,
+                checkInDate: data.checkInDate,
+            });
             setIsSubmitting(false);
             setIsSuccess(true);
             generatePDF(data);
-        }, 2000);
+        } catch (error) {
+            console.error("Submission failed:", error);
+            alert("Gagal melakukan pendaftaran. Silakan coba lagi.");
+            setIsSubmitting(false);
+        }
     };
 
     if (isSuccess) {
@@ -164,9 +175,9 @@ const RegistrationForm = () => {
                                     {...register("roomType")}
                                     className="w-full h-12 px-4 rounded-xl border border-emerald-100 bg-emerald-50/30 focus:outline-none focus:ring-2 focus:ring-emerald-500 transition-all text-emerald-950 bg-white"
                                 >
-                                    <option value="standard">Standard - Rp 1.5jt</option>
-                                    <option value="deluxe">Deluxe - Rp 2.0jt</option>
-                                    <option value="suite">Suite - Rp 2.5jt</option>
+                                    <option value="standard">Standard - Rp 1.000.000</option>
+                                    <option value="deluxe">Deluxe - Rp 1.100.000</option>
+                                    <option value="suite">Suite - (Coming Soon)</option>
                                 </select>
                             </div>
 

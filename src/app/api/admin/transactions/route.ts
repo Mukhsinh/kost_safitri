@@ -28,6 +28,7 @@ export async function POST(request: NextRequest) {
         const { data, error } = await supabase
             .from("Transaction")
             .insert({
+                id: Math.random().toString(36).substring(2, 11),
                 type,
                 category,
                 amount: parseFloat(amount),

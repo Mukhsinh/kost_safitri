@@ -1,7 +1,8 @@
 "use client";
 
-import React from "react";
+import React, { useEffect, useState } from "react";
 import Link from "next/link";
+import { usePathname, useRouter } from "next/navigation";
 import {
     LayoutDashboard,
     Users,
@@ -9,11 +10,62 @@ import {
     MessageSquare,
     Settings,
     LogOut,
-    Bell
+    Bell,
+    Loader2
 } from "lucide-react";
 import { cn } from "@/lib/utils";
+import { supabase } from "@/lib/supabase";
 
 const AdminLayout = ({ children }: { children: React.ReactNode }) => {
+    const pathname = usePathname();
+    const router = useRouter();
+    const [loading, setLoading] = useState(true);
+    const [user, setUser] = useState<any>(null);
+
+    const isLoginPage = pathname === "/admin/login";
+
+    useEffect(() => {
+        const checkUser = async () => {
+            const { data: { session } } = await supabase.auth.getSession();
+
+            if (!session && !isLoginPage) {
+                router.push("/admin/login");
+            } else if (session) {
+                setUser(session.user);
+            }
+            setLoading(false);
+        };
+
+        checkUser();
+
+        const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
+            if (!session && !isLoginPage) {
+                router.push("/admin/login");
+            } else if (session) {
+                setUser(session.user);
+            }
+        });
+
+        return () => subscription.unsubscribe();
+    }, [isLoginPage, router]);
+
+    const handleLogout = async () => {
+        await supabase.auth.signOut();
+        router.push("/admin/login");
+    };
+
+    if (loading && !isLoginPage) {
+        return (
+            <div className="min-h-screen flex items-center justify-center bg-white dark:bg-emerald-950">
+                <Loader2 className="w-10 h-10 animate-spin text-emerald-600" />
+            </div>
+        );
+    }
+
+    if (isLoginPage) {
+        return <>{children}</>;
+    }
+
     const sidebarItems = [
         { name: "Dashboard", href: "/admin", icon: LayoutDashboard },
         { name: "Penghuni", href: "/admin/residents", icon: Users },
@@ -44,7 +96,9 @@ const AdminLayout = ({ children }: { children: React.ReactNode }) => {
                             href={item.href}
                             className={cn(
                                 "flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-semibold transition-all hover:bg-emerald-50 hover:text-emerald-600",
-                                "text-slate-600 dark:text-emerald-100/60"
+                                pathname === item.href
+                                    ? "bg-emerald-50 text-emerald-600 border border-emerald-100 shadow-sm shadow-emerald-500/5 dark:bg-emerald-900/40 dark:border-emerald-800"
+                                    : "text-slate-600 dark:text-emerald-100/60"
                             )}
                         >
                             <item.icon className="w-5 h-5" />
@@ -54,7 +108,10 @@ const AdminLayout = ({ children }: { children: React.ReactNode }) => {
                 </nav>
 
                 <div className="p-4 border-t border-slate-200 dark:border-emerald-900">
-                    <button className="flex items-center gap-3 px-4 py-3 w-full rounded-xl text-sm font-semibold text-red-500 hover:bg-red-50 transition-all">
+                    <button
+                        onClick={handleLogout}
+                        className="flex items-center gap-3 px-4 py-3 w-full rounded-xl text-sm font-semibold text-red-500 hover:bg-red-50 transition-all"
+                    >
                         <LogOut className="w-5 h-5" />
                         Keluar
                     </button>
@@ -73,11 +130,13 @@ const AdminLayout = ({ children }: { children: React.ReactNode }) => {
                             <span className="absolute top-2 right-2 w-2 h-2 bg-red-500 rounded-full"></span>
                         </button>
                         <div className="flex items-center gap-3 border-l border-slate-200 dark:border-emerald-900 pl-6">
-                            <div className="w-10 h-10 bg-emerald-100 rounded-full flex items-center justify-center text-emerald-700 font-bold">
-                                AD
+                            <div className="w-10 h-10 bg-emerald-100 rounded-full flex items-center justify-center text-emerald-700 font-bold uppercase">
+                                {user?.email?.charAt(0) || "A"}
                             </div>
                             <div className="hidden sm:block">
-                                <div className="text-sm font-bold text-slate-800">Admin Safitri</div>
+                                <div className="text-sm font-bold text-slate-800 dark:text-emerald-50">
+                                    {user?.email?.split('@')[0] || "Admin"}
+                                </div>
                                 <div className="text-xs text-slate-400 uppercase tracking-tighter">Superadmin</div>
                             </div>
                         </div>
@@ -94,3 +153,4 @@ const AdminLayout = ({ children }: { children: React.ReactNode }) => {
 };
 
 export default AdminLayout;
+

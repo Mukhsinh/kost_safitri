@@ -39,15 +39,22 @@ const ResidentsPage = () => {
     }, []);
 
     const handleStatusChange = async (id: string, currentStatus: string) => {
-        const nextStatus = currentStatus === "Active" ? "Inactive" : "Active";
-        if (confirm(`Ubah status penghuni menjadi ${nextStatus}?`)) {
-            await fetch(`/api/admin/residents/${id}`, {
-                method: "PATCH",
-                headers: { "Content-Type": "application/json" },
-                body: JSON.stringify({ status: nextStatus }),
-            });
-            loadData();
+        let nextStatus = currentStatus === "Active" ? "Inactive" : "Active";
+        const isPending = currentStatus === "Pending";
+
+        if (isPending) {
+            if (!confirm(`Terima pendaftaran ini dan aktifkan penghuni?`)) return;
+            nextStatus = "Active";
+        } else {
+            if (!confirm(`Ubah status penghuni menjadi ${nextStatus}?`)) return;
         }
+
+        await fetch(`/api/admin/residents/${id}`, {
+            method: "PATCH",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ status: nextStatus }),
+        });
+        loadData();
     };
 
     const filteredResidents = residents.filter(r =>
@@ -140,15 +147,27 @@ const ResidentsPage = () => {
                                         <div className={cn(
                                             "inline-flex px-3 py-1 rounded-full text-[10px] font-black uppercase tracking-tighter hover:opacity-80 transition-opacity",
                                             res.status === "Active" ? "bg-emerald-100 text-emerald-700" :
-                                                "bg-slate-100 text-slate-700"
+                                                res.status === "Pending" ? "bg-amber-100 text-amber-700" :
+                                                    "bg-slate-100 text-slate-700"
                                         )}>
                                             {res.status}
                                         </div>
                                     </td>
                                     <td className="px-8 py-5 text-right">
-                                        <button className="p-2 hover:bg-slate-200 rounded-lg transition-colors">
-                                            <MoreHorizontal className="w-5 h-5 text-slate-400" />
-                                        </button>
+                                        <div className="flex justify-end gap-2">
+                                            {res.status === "Pending" && (
+                                                <button
+                                                    onClick={() => handleStatusChange(res.id, res.status)}
+                                                    className="p-2 bg-emerald-50 text-emerald-600 rounded-xl hover:bg-emerald-600 hover:text-white transition-all shadow-sm"
+                                                    title="Setujui"
+                                                >
+                                                    <Check className="w-5 h-5" />
+                                                </button>
+                                            )}
+                                            <button className="p-2 hover:bg-slate-200 rounded-lg transition-colors">
+                                                <MoreHorizontal className="w-5 h-5 text-slate-400" />
+                                            </button>
+                                        </div>
                                     </td>
                                 </tr>
                             ))}

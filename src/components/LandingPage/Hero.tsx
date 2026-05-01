@@ -73,8 +73,8 @@ const Hero = () => {
                                 ★
                             </div>
                             <div>
-                                <div className="text-sm font-bold text-emerald-950">4.9/5 Rating</div>
-                                <div className="text-xs text-emerald-700/70">Dari 50+ Penghuni</div>
+                                <div className="text-sm font-bold text-emerald-950">5/5 Rating</div>
+                                <div className="text-xs text-emerald-700/70">Dari 10+ Penghuni</div>
                             </div>
                         </div>
                     </div>

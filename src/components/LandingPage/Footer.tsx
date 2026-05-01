@@ -19,26 +19,7 @@ const Footer = () => {
                     <p className="text-emerald-100/60 leading-relaxed max-w-xs text-sm">
                         Kost paviliun modern di kawasan perumahan premium Pekalongan. Nyaman, aman, dan terjangkau.
                     </p>
-                    <div className="flex gap-4">
-                        <a
-                            href="https://www.instagram.com/"
-                            target="_blank"
-                            rel="noopener noreferrer"
-                            className="w-10 h-10 bg-emerald-900 rounded-full flex items-center justify-center hover:bg-emerald-600 transition-colors"
-                            aria-label="Instagram"
-                        >
-                            <Camera className="w-5 h-5 text-emerald-100" />
-                        </a>
-                        <a
-                            href="https://maps.app.goo.gl/DTRv8uyUk6pWfRYY6"
-                            target="_blank"
-                            rel="noopener noreferrer"
-                            className="w-10 h-10 bg-emerald-900 rounded-full flex items-center justify-center hover:bg-emerald-600 transition-colors"
-                            aria-label="Google Maps"
-                        >
-                            <Globe className="w-5 h-5 text-emerald-100" />
-                        </a>
-                    </div>
+
                 </div>
 
                 {/* Navigation */}
@@ -96,7 +77,7 @@ const Footer = () => {
                     <h4 className="text-lg font-bold mb-6">Lokasi Kami</h4>
                     <div className="w-full h-48 rounded-2xl overflow-hidden bg-emerald-900 border border-emerald-800">
                         <iframe
-                            src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3960.0!2d109.6757!3d-6.8880!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x0%3A0x0!2zNsKwNTMnMTYuOCJTIDEwOcKwNDAnMzIuNSJF!5e0!3m2!1sid!2sid!4v1746000000000!5m2!1sid!2sid"
+                            src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3961.099658516708!2d109.68042847364877!3d-6.87866276730334!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x2e7025c9209f9c71%3A0xe64570ba4c5ee004!2sSapphire%20Town%20House%20Pekalongan!5e0!3m2!1sid!2sid!4v1777651983876!5m2!1sid!2sid"
                             width="100%"
                             height="100%"
                             style={{ border: 0 }}

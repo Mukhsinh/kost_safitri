@@ -14,7 +14,7 @@ const rooms = [
         available: true,
         comingSoon: false,
         features: ["Single Bed", "Kamar Mandi Dalam", "Lemari", "Meja & Kursi", "AC"],
-        image: "/images/kamar standard.png",
+        image: "/images/standard.png",
     },
     {
         id: "deluxe",
@@ -25,7 +25,7 @@ const rooms = [
         available: true,
         comingSoon: false,
         features: ["Queen Bed", "AC", "Kamar Mandi Dalam", "Lemari Besar"],
-        image: "/images/kamar deluxe.png",
+        image: "/images/deluxe.png",
     },
     {
         id: "suite",
@@ -78,6 +78,7 @@ const Rooms = () => {
                                     fill
                                     sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
                                     className="object-cover group-hover:scale-110 transition-transform duration-700 brightness-110 contrast-105 saturate-110"
+                                    priority={room.id === 'standard' || room.id === 'deluxe'}
                                 />
                                 {/* Cinematic gradient overlay */}
                                 <div className="absolute inset-0 bg-gradient-to-t from-black/40 via-transparent to-transparent" />

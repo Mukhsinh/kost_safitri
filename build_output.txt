@@ -1,0 +1,38 @@
+
+> kost-safitri@0.1.0 build
+> next build
+
+Γû▓ Next.js 16.2.4 (Turbopack)
+- Environments: .env.local
+
+  Creating an optimized production build ...
+Γ£ô Compiled successfully in 16.7s
+  Running TypeScript ...
+  Finished TypeScript in 11.4s ...
+  Collecting page data using 3 workers ...
+  Generating static pages using 3 workers (0/13) ...
+  Generating static pages using 3 workers (3/13) 
+  Generating static pages using 3 workers (6/13) 
+  Generating static pages using 3 workers (9/13) 
+Γ£ô Generating static pages using 3 workers (13/13) in 5.2s
+  Finalizing page optimization ...
+
+Route (app)
+Γöî Γùï /
+Γö£ Γùï /_not-found
+Γö£ Γùï /admin
+Γö£ Γùï /admin/finance
+Γö£ Γùï /admin/residents
+Γö£ Γùï /admin/reviews
+Γö£ Γùï /admin/settings
+Γö£ ╞Æ /api/admin/residents
+Γö£ ╞Æ /api/admin/residents/[id]
+Γö£ ╞Æ /api/admin/reviews
+Γö£ ╞Æ /api/admin/reviews/[id]
+Γö£ ╞Æ /api/admin/stats
+Γöö ╞Æ /api/admin/transactions
+
+
+Γùï  (Static)   prerendered as static content
+╞Æ  (Dynamic)  server-rendered on demand
+
